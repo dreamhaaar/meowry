@@ -232,7 +232,7 @@ li{
         row-gap: 5px;
         justify-content: center;
         align-items:center ;
-        margin-top: 50px;
+        margin-top: 10px;
     }
 
     .box{
@@ -260,7 +260,7 @@ li{
     .popup {
         height: 220px;
         width: 350px;
-        top: 90%;
+        top: 50%;
         transform: translate(-50%, -50%) scale(1);
     }
     .popup-title{
