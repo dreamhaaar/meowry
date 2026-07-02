@@ -16,167 +16,207 @@ const randomBox = [
   "fifteen",
   "sixteen",
 ];
+
 var playerPattern = [];
 var gamePattern = [];
 var level = 1;
 var difficulty = 1;
 var isGameRunning = false;
 var isAnimating = false;
+var highScore = localStorage.getItem("meowry_highscore") || 0;
 
-let message = "Memory Sequence Game";
 function animatePressAdd(box) {
-  isAnimating = true;
   $("#" + box).addClass("press-effect");
 }
 
 function animatePressRemove(box) {
   $("#" + box).removeClass("press-effect");
-  isAnimating = false;
-}
-
-function removePress() {
-  for (let i = 0; i < playerPattern.length; i++) {
-    setTimeout(function () {
-      animatePressRemove(playerPattern[i]);
-    }, playerPattern.length * 100);
-  }
 }
 
 function meow() {
   var audio = new Audio("meow.mp3");
   audio.playbackRate = 2.0;
-  audio.play();
+  audio.play().catch(function (error) {
+    console.log("Audio playback failed or was interrupted:", error);
+  });
 }
 
 function showPopUp(isWin = true) {
   $(".start").addClass("hide-startbutton");
-  $(".main-box").addClass("hide-mainbox");
   $(".popup").addClass("show-popup");
   
   if (isWin) {
-    $(".popup-title").html("Congratulations!");
+    $(".popup-title").html("Congratulations! 🎉");
     $(".popup h2").html("You reached");
-    $(".level").html("Level " + (level - 1));
+    $(".level").html("Level " + level);
   } else {
-    $(".popup-title").html("Game Over! ");
+    $(".popup-title").html("Game Over! 😿");
     $(".popup h2").html("You made it to");
-    $(".level").html("Level " + (level - 1));
+    $(".level").html("Level " + level);
   }
 }
 
 function closePopUp() {
   $(".start").removeClass("hide-startbutton");
-  $(".main-box").removeClass("hide-mainbox");
   $(".popup").removeClass("show-popup");
-  message = "Memory Sequence Game";
-  $(".title").html(message);
-  $(".t").html(message);
+  
   isGameRunning = false;
-  isStartClicked();
+  isAnimating = false;
+  level = 1;
+  difficulty = 1;
+  
+  updateScoreboard();
+  updateStatus("READY", "ready");
+  $(".main-box").addClass("grid-locked");
 }
 
 function gameOver() {
   isGameRunning = false;
-  message = "Wrong Sequence";
-  $(".title").html(message);
-  $(".t").html(message);
+  isAnimating = false;
+  
   var audio = new Audio("wrong.mp3");
-  audio.play();
-  $(".box").off("click");
+  audio.play().catch(function (error) {
+    console.log("Audio playback failed or was interrupted:", error);
+  });
+  
   showPopUp(false);
-  removePress();
 }
+
 function startGame() {
   level = 1;
   difficulty = 1;
   isGameRunning = true;
+  isAnimating = true;
+  playerPattern = [];
+  gamePattern = [];
+  
   $(".start").addClass("hide-startbutton");
-  setTimeout(gameSequence, 1000);
+  $(".main-box").removeClass("grid-locked");
+  
+  updateScoreboard();
+  
+  setTimeout(gameSequence, 600);
 }
 
 function gameSequence() {
   playerPattern = [];
-  gamePattern = [];
   isAnimating = true;
-  $(".title").html("Level " + level);
-  $(".t").html("Level " + level);
+  $(".main-box").addClass("grid-locked");
+  updateStatus("WATCHING...", "watching");
 
+  // Generate sequence (allowing duplicates to avoid the infinite loop bug at level 17+)
+  gamePattern = [];
   for (var i = 0; i < difficulty; i++) {
-    let generatedRandomBox;
-    do {
-      var randomNumber = Math.floor(Math.random() * randomBox.length);
-      generatedRandomBox = randomBox[randomNumber];
-    } while (gamePattern.includes(generatedRandomBox));
-    gamePattern.push(generatedRandomBox);
+    var randomNumber = Math.floor(Math.random() * randomBox.length);
+    gamePattern.push(randomBox[randomNumber]);
   }
 
-  for (let i = 0; i < difficulty; i++) {
+  const stepInterval = 600;
+  const flashDuration = 400;
+
+  // Flash sequence with precise timing
+  gamePattern.forEach(function (box, i) {
     setTimeout(function () {
-      meow();
-      animatePressAdd(gamePattern[i]);
-    }, i * 300);
-  }
-  for (let i = 0; i < gamePattern.length; i++) {
-    setTimeout(function () {
-      animatePressRemove(gamePattern[i]);
-    }, (i + 1) * 300 + gamePattern.length * 100);
-  }
-  
-  setTimeout(function () {
-    isAnimating = false;
-  }, (difficulty + 1) * 300);
-
-  console.log(gamePattern);
-}
-
-function playerSequence() {
-  $(".box").off("click").on("click", function () {
-      if (!isAnimating && isGameRunning) {
-        var idName = this.id;
-        playerPattern.push(idName);
-        animatePressAdd(idName);
-        console.log("player" + playerPattern);
+      if (isGameRunning) {
         meow();
-        setTimeout(function() {
-          animatePressRemove(playerPattern[playerPattern.length - 1]);
-        }, 150);
-        playerSequenceChecker(playerPattern.length - 1);
+        animatePressAdd(box);
       }
-    });
+    }, i * stepInterval);
+
+    setTimeout(function () {
+      if (isGameRunning) {
+        animatePressRemove(box);
+      }
+    }, i * stepInterval + flashDuration);
+  });
+
+  // Enable player clicks precisely after the last tile finishes flashing
+  setTimeout(function () {
+    if (isGameRunning) {
+      isAnimating = false;
+      $(".main-box").removeClass("grid-locked");
+      updateStatus("YOUR TURN!", "player-turn");
+    }
+  }, difficulty * stepInterval);
 }
 
 function playerSequenceChecker(index) {
-  console.log("player" + playerPattern.length);
-  console.log("game" + gamePattern.length);
   if (playerPattern[index] === gamePattern[index]) {
+    // If they completed the entire pattern for this level
     if (playerPattern.length === gamePattern.length) {
-      $(".box").off("click");
+      isAnimating = true;
+      $(".main-box").addClass("grid-locked");
+      
+      // Update high score
+      if (level > highScore) {
+        highScore = level;
+        localStorage.setItem("meowry_highscore", highScore);
+      }
+
       difficulty++;
       level++;
-      setTimeout(function() {
-        playerSequence();
-        gameSequence();
-      }, 800);
+      
+      updateScoreboard();
+      updateStatus("CORRECT!", "correct");
+
+      setTimeout(function () {
+        if (isGameRunning) {
+          gameSequence();
+        }
+      }, 1000);
     }
   } else {
-    isGameRunning = false;
-    $(".box").off("click");
+    // Incorrect box clicked
+    isAnimating = true;
+    $(".main-box").addClass("grid-locked");
+    updateStatus("WRONG!", "wrong");
+    
     setTimeout(function () {
       gameOver();
-    }, 500);
+    }, 600);
   }
 }
 
-function isStartClicked() {
-  $(".start-button")
-    .off("click")
-    .on("click", function () {
-      if (!isGameRunning) {
-        startGame();
-        setTimeout(playerSequence, 1500);
-        console.log("start clicked");
-      }
-    });
+function updateScoreboard() {
+  $("#current-level").html(level);
+  $("#high-score").html(highScore);
 }
 
-isStartClicked();
+function updateStatus(text, className) {
+  var pill = $("#status-pill");
+  pill.html(text);
+  pill.removeClass("ready watching player-turn correct wrong");
+  pill.addClass(className);
+}
+
+// Bind handlers on page load
+$(document).ready(function () {
+  updateScoreboard();
+  updateStatus("READY", "ready");
+  $(".main-box").addClass("grid-locked"); // Lock grid before start
+
+  // Grid box clicks
+  $(".box").on("click", function () {
+    if (isGameRunning && !isAnimating) {
+      var idName = this.id;
+      playerPattern.push(idName);
+      
+      animatePressAdd(idName);
+      meow();
+      
+      setTimeout(function () {
+        animatePressRemove(idName);
+      }, 150);
+      
+      playerSequenceChecker(playerPattern.length - 1);
+    }
+  });
+
+  // Start Button Click
+  $(".start-button").on("click", function () {
+    if (!isGameRunning) {
+      startGame();
+    }
+  });
+});
+

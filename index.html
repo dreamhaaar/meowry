@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Game</title>
+    <title>Meowry 🐾 - Cat Memory Sequence Game</title>
     <link rel="shortcut icon" href="#">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,61 +16,80 @@
 
 <body>
     <div class="main">
-
-
         <div class="container">
-            <h1 class="title"> Memory Sequence Game </h1>
-            <h1 class="t"> Memory Sequence <br> Game </h1>
-            <div class="main-box">
-                <button id="one" class="box"></button>
-                <button id="two" class="box"></button>
-                <button id="three" class="box"></button>
-                <button id="four" class="box"></button>
-                <button id="five" class="box"></button>
-                <button id="six" class="box"></button>
-                <button id="seven" class="box"></button>
-                <button id="eight" class="box"></button>
-                <button id="nine" class="box"></button>
-                <button id="ten" class="box"></button>
-                <button id="eleven" class="box"></button>
-                <button id="twelve" class="box"></button>
-                <button id="thirteen" class="box"></button>
-                <button id="fourteen" class="box"></button>
-                <button id="fifteen" class="box"></button>
-                <button id="sixteen" class="box"></button>
+            <header class="game-header">
+                <h1 class="game-logo">Meowry <span>🐾</span></h1>
+                <p class="game-subtitle">Train your brain with feline sequence cues!</p>
+            </header>
+
+            <!-- Scoreboard and Status Section -->
+            <div class="scoreboard">
+                <div class="score-card">
+                    <span class="score-label">LEVEL</span>
+                    <span id="current-level" class="score-value">1</span>
+                </div>
+                <div class="status-container">
+                    <span id="status-pill" class="status-pill ready">READY</span>
+                </div>
+                <div class="score-card">
+                    <span class="score-label">BEST</span>
+                    <span id="high-score" class="score-value">0</span>
+                </div>
             </div>
+
+            <!-- Playable 4x4 Grid -->
+            <div class="main-box grid-locked">
+                <button id="one" class="box" aria-label="Tile 1"></button>
+                <button id="two" class="box" aria-label="Tile 2"></button>
+                <button id="three" class="box" aria-label="Tile 3"></button>
+                <button id="four" class="box" aria-label="Tile 4"></button>
+                <button id="five" class="box" aria-label="Tile 5"></button>
+                <button id="six" class="box" aria-label="Tile 6"></button>
+                <button id="seven" class="box" aria-label="Tile 7"></button>
+                <button id="eight" class="box" aria-label="Tile 8"></button>
+                <button id="nine" class="box" aria-label="Tile 9"></button>
+                <button id="ten" class="box" aria-label="Tile 10"></button>
+                <button id="eleven" class="box" aria-label="Tile 11"></button>
+                <button id="twelve" class="box" aria-label="Tile 12"></button>
+                <button id="thirteen" class="box" aria-label="Tile 13"></button>
+                <button id="fourteen" class="box" aria-label="Tile 14"></button>
+                <button id="fifteen" class="box" aria-label="Tile 15"></button>
+                <button id="sixteen" class="box" aria-label="Tile 16"></button>
+            </div>
+
+            <!-- Start Button -->
             <div class="start">
                 <button class="start-button">Start Game</button>
             </div>
+
+            <!-- Result Overlay / Popup -->
             <div class="popup">
-                <div class="popup-images">
-                    <img src="star-struck.png" alt="">
-                    <button type="button" class="exit-button" onclick="closePopUp()">X</button>
+                <div class="popup-header">
+                    <button type="button" class="exit-button" onclick="closePopUp()" aria-label="Close popup">×</button>
                 </div>
-                <h1 class="popup-title">Congratulations!</h1>
-                <h2>You reached</h2>
-                <h3 class="popup-title-h3 level"></h3>
+                <div class="popup-body">
+                    <img src="star-struck.png" alt="Star Struck Cat Emoji" class="popup-emoji">
+                    <h2 class="popup-title">Game Over! 😿</h2>
+                    <p class="popup-text">You reached</p>
+                    <h3 class="popup-level level">Level 1</h3>
+                    <button type="button" class="play-again-btn" onclick="closePopUp()">Play Again</button>
+                </div>
             </div>
-
-
         </div>
 
+        <!-- Instructions Panel -->
         <div class="info">
-            <h1>How to Play? </h1>
-            <p>Memorize the sequence displayed in the boxes.
-                <br><br>
-                With each level, the number of boxes to memorize increases. The sequence is randomized in every level,
-                ensuring a different challenge each time.
-                <br><br>
-                <strong><em>Sharpen your memory and conquer the game!</em></strong>
-            </p>
+            <h2>How to Play?</h2>
+            <ul>
+                <li>🐱 <strong>Watch:</strong> Pay attention to the flashing tiles. Each step plays a short meow sound.</li>
+                <li>🎯 <strong>Repeat:</strong> Click the exact same sequence when the status turns to <em>YOUR TURN!</em>.</li>
+                <li>🧠 <strong>Level Up:</strong> The sequence grows longer and faster with each level. Can you beat your high score?</li>
+            </ul>
         </div>
-
-
     </div>
 
-    <footer style="text-align: center; margin-top: 20px;">
-        <p>&copy; Made by Rei.</p>
+    <footer>
+        <p>&copy; Made by Rei. Redesigned with 💜</p>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -79,4 +98,4 @@
 
 </body>
 
-</html>
+</html>
